@@ -1,0 +1,27 @@
+.plugin-card:nth-child(odd) {
+	clear: both;
+	margin-left: 0;
+	margin-right: 0;
+}
+
+.plugin-card:nth-child(even) {
+	clear: both;
+	margin-left: 0;
+	margin-right: 0;
+}
+
+.plugin-card {
+	width: 100%;
+}
+
+.plugin-card .action-links {
+	display: none;
+}
+
+.plugin-card .desc, .plugin-card .name {
+	margin-right: 0;
+}
+
+.plugin-card-top {
+	height: 160px;
+}
