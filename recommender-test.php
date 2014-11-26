@@ -38,9 +38,12 @@ function recommender_test() {
 		// We're extending the list table because it contains protected methods that are handy.
 		class Recommender_Test_Table extends WP_Plugin_Install_List_Table {
 			var $type = 'popular';
+			var $installed_plugins = array();
 			
 			function __construct( $type = 'popular' ) {
 				$this->type = $type;
+				if ( $this->type === 'recommended' )
+					$this->installed_plugins = $this->get_installed_plugin_slugs();
 				
 				parent::__construct();
 			}
@@ -59,12 +62,11 @@ function recommender_test() {
 					'locale' => get_locale(),
 					'browse' => 'popular',
 				);
-				
-				if ( $this->type === 'recommended' )
-					$args[ 'installed_plugins' ] = $this->get_installed_plugin_slugs();
+
+				if ( $this->installed_plugins )
+					$args['installed_plugins'] = array_unique( array_filter( $this->installed_plugins ) );
 
 				$api = plugins_api( 'query_plugins', $args );
-#				var_dump( $args, $api );
 		
 				if ( is_wp_error( $api ) ) {
 					$this->error = $api;
@@ -87,11 +89,18 @@ function recommender_test() {
 <div class="widefat">
 <?php
 
+	// Workaround for an Undefined notice in WP_Plugin_Install_List_Table
+	if ( !isset( $GLOBALS['tab'] ) )
+		$GLOBALS['tab'] = '';
+
 	$installed_plugins = array();
-	if ( trim( $_POST['plugins'] ) )
-		$installed_plugins = preg_split( "\w+", $_POST['plugins'] );
-	else
-		$installed_plugins = Recommender_Test_Table::get_installed_plugin_slugs();
+	if ( isset( $_POST['plugins'] ) && trim( $_POST['plugins'] ) ) {
+		$installed_plugins = preg_split( '/\s+/', $_POST['plugins'] );
+		var_dump( $_POST['plugins'], $installed_plugins );
+	} else {
+		$dummy = new Recommender_Test_Table();
+		$installed_plugins = $dummy->get_installed_plugin_slugs();
+	}
 		
 
 	echo '<form method="post">';
@@ -103,6 +112,7 @@ function recommender_test() {
 
 	echo '<div style="width: 45%; float: left; margin: 12px">';
 	echo '<h3>Popular:</h3>';
+	echo '<p>This column shows the old-style popular list.</p>';
 	
 	$table = new Recommender_Test_Table( 'popular' );
 	$table->prepare_items();
@@ -113,8 +123,10 @@ function recommender_test() {
 
 	echo '<div style="width: 45%; float: left; margin: 12px">';
 	echo '<h3>Recommended:</h3>';
+	echo '<p>This column shows the new recommender results.</p>';
 	
 	$table = new Recommender_Test_Table( 'recommended' );
+	$table->installed_plugins = $installed_plugins;
 	$table->prepare_items();
 	$table->display();
 	
