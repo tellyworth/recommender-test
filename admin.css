@@ -1,3 +1,5 @@
+/* Override the plugin card CSS so as to display an abbreviated version */
+
 .plugin-card:nth-child(odd) {
 	clear: both;
 	margin-left: 0;
@@ -20,8 +22,14 @@
 
 .plugin-card .desc, .plugin-card .name {
 	margin-right: 0;
+	margin-left: 84px;
 }
 
 .plugin-card-top {
 	height: 160px;
+}
+
+.plugin-icon, .plugin-icon img {
+	width: 64px;
+	height: 64px;
 }
